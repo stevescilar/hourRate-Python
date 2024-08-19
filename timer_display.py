@@ -4,6 +4,9 @@ import platform
 import tkinter as tk
 
 working_hours = 9 * 3600 + 30 * 60
+warning_time = 10 * 60
+
+
 start_time = time.time()
 
 
@@ -22,6 +25,12 @@ def update_timer():
         label.config(text="Time's up! Shutting down...")
         root.update()
         time.sleep(2)
+        shutdown_computer()
+    elif remaining_time <= warning_time:
+        label.config(
+            text=f"Warning: {format_time(remaining_time)} left! Save your work."
+        )
+        root.after(1000, update_timer)
     else:
         label.config(text="Time Remaining: " + format_time(remaining_time))
         root.after(1000, update_timer)
@@ -38,9 +47,13 @@ def shutdown_computer():
 
 
 root = tk.Tk()
-root.title("Work-Life Balance (Timer)")
+root.title("Work Timer")
+
 root.geometry("300x100")
-label = tk.Label(root, text="Time Remaining: ", font=("Helvetica", 12))
+
+label = tk.Label(root, text="Time Remaining: ", font=("Helvetica", 15))
 label.pack(expand=True)
+
 update_timer()
+
 root.mainloop()
