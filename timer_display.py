@@ -52,7 +52,7 @@ def shutdown_computer():
 
 
 root = tk.Tk()
-root.title("Work Timer")
+root.title("Work Time")
 
 
 root.geometry("250x100")
