@@ -2,12 +2,14 @@ import time
 import os
 import platform
 import tkinter as tk
+from datetime import datetime, timedelta
 
-working_hours = 9 * 3600 + 30 * 60
+
+working_hours = 10 * 3600 + 30 * 60
 warning_time = 10 * 60
 
-
 start_time = time.time()
+start_time_str = datetime.now().strftime("%H:%M:%S")
 
 
 def format_time(seconds):
@@ -19,20 +21,23 @@ def format_time(seconds):
 
 def update_timer():
     elapsed_time = time.time() - start_time
-    remaining_time = working_hours - elapsed_time
+    remaining_time_work = working_hours - elapsed_time
 
-    if remaining_time <= 0:
+    if remaining_time_work <= 0:
         label.config(text="Time's up! Shutting down...")
         root.update()
         time.sleep(2)
         shutdown_computer()
-    elif remaining_time <= warning_time:
+    elif remaining_time_work <= warning_time:
         label.config(
-            text=f"Warning: {format_time(remaining_time)} left! Save your work."
+            text=f"Warning: {format_time(remaining_time_work)} left! Save your work."
         )
         root.after(1000, update_timer)
     else:
-        label.config(text="Time Remaining: " + format_time(remaining_time))
+        remaining_display = format_time(remaining_time_work)
+        label.config(
+            text=f"Started at: {start_time_str}\nTime Remaining: {remaining_display}"
+        )
         root.after(1000, update_timer)
 
 
@@ -49,10 +54,13 @@ def shutdown_computer():
 root = tk.Tk()
 root.title("Work Timer")
 
-root.geometry("300x100")
 
-label = tk.Label(root, text="Time Remaining: ", font=("Helvetica", 15))
+root.geometry("250x100")
+
+
+label = tk.Label(root, text="Time Remaining: ", font=("Helvetica", 12), justify=tk.LEFT)
 label.pack(expand=True)
+
 
 update_timer()
 
