@@ -6,7 +6,7 @@ from tkinter import ttk
 from datetime import datetime, timedelta
 
 
-working_hours = 10 * 3600
+working_hours = 10 * 3600 + 30 * 60
 break_time = 1 * 3600
 warning_time = 10 * 60
 
