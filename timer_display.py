@@ -10,7 +10,6 @@ working_hours = 10 * 3600
 break_time = 1 * 3600
 warning_time = 10 * 60
 
-
 log_file_path = "work_timer_log.txt"
 
 
@@ -38,18 +37,9 @@ def update_timer():
     progress_var.set((elapsed_time / working_hours) * 100)
 
     if remaining_time_work <= 0:
-        label.config(text="Time's up! Shutting down...", fg="red")
+        label.config(text="Time's up!", fg="red")
         root.update()
-        time.sleep(2)
-        end_time = datetime.now()
-        end_time_str = end_time.strftime("%H:%M:%S")
-        total_work_time = working_hours - break_time
-        total_work_hours = format_time(total_work_time)
-        log_event(
-            f"Session Ended: {end_time_str} on {end_time.strftime('%A, %B %d, %Y')}"
-        )
-        log_event(f"Total Hours Worked (excluding 1-hour break): {total_work_hours}")
-        shutdown_computer()
+        stop_timer()
     elif remaining_time_work <= warning_time:
         label.config(
             text=f"Warning: {format_time(remaining_time_work)} left! Save your work.",
@@ -60,19 +50,33 @@ def update_timer():
         remaining_display = format_time(remaining_time_work)
         label.config(
             text=f"Started at: {start_time_str}\nTime Remaining: {remaining_display}",
-            fg="#00338D",
+            fg="green",
         )
         root.after(1000, update_timer)
 
 
-def shutdown_computer():
+def stop_timer():
+    end_time = datetime.now()
+    end_time_str = end_time.strftime("%H:%M:%S")
+    total_work_time = int(time.time() - start_time) - break_time
+    total_work_hours = format_time(total_work_time)
+    log_event(f"Session Ended: {end_time_str} on {end_time.strftime('%A, %B %d, %Y')}")
+    log_event(f"Total Hours Worked (excluding 1-hour break): {total_work_hours}")
+    log_event("-" * 40)
+    open_log_file()
+    root.quit()
+
+
+def open_log_file():
     system_name = platform.system()
     if system_name == "Windows":
-        os.system("shutdown /s /t 1")
-    elif system_name == "Linux" or system_name == "Darwin":  # macOS is 'Darwin'
-        os.system("shutdown -h now")
+        os.system(f'notepad.exe "{log_file_path}"')
+    elif system_name == "Linux":
+        os.system(f'xdg-open "{log_file_path}"')
+    elif system_name == "Darwin":  # macOS is 'Darwin'
+        os.system(f'open "{log_file_path}"')
     else:
-        label.config(text=f"Shutdown not supported for {system_name}.")
+        label.config(text=f"Opening log file not supported for {system_name}.")
 
 
 log_event(f"Session Started: {start_time_str} on {start_date_str}")
@@ -83,9 +87,12 @@ root.title("Work Timer")
 
 
 root.geometry("400x200")
-root.configure(bg="#F6F1EC")
+root.configure(bg="#282c34")
 
-label = tk.Label(root, text="Time Remaining: ", font=("Helvetica", 16), fg="white")
+
+label = tk.Label(
+    root, text="Time Remaining: ", font=("Helvetica", 16), fg="white", bg="#282c34"
+)
 label.pack(expand=True)
 
 
@@ -95,11 +102,12 @@ progress_bar = ttk.Progressbar(
 )
 progress_bar.pack(pady=10)
 
+
 exit_button = tk.Button(
     root,
-    text="X",
-    command=root.quit,
-    bg="#00338D",
+    text="Exit",
+    command=stop_timer,
+    bg="#61afef",
     fg="white",
     font=("Helvetica", 12),
     relief="flat",
