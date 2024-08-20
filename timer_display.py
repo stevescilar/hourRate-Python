@@ -2,14 +2,17 @@ import time
 import os
 import platform
 import tkinter as tk
+from tkinter import ttk
 from datetime import datetime, timedelta
 
-# definition of important considerations 'hahah'
-working_hours = 10 * 3600 + 30 * 60
-warning_time = 10 * 60
+
+working_hours = 10 * 3600
 break_time = 1 * 3600
+warning_time = 10 * 60
+
 
 log_file_path = "work_timer_log.txt"
+
 
 start_time = time.time()
 start_time_str = datetime.now().strftime("%H:%M:%S")
@@ -32,8 +35,10 @@ def update_timer():
     elapsed_time = time.time() - start_time
     remaining_time_work = working_hours - elapsed_time
 
+    progress_var.set((elapsed_time / working_hours) * 100)
+
     if remaining_time_work <= 0:
-        label.config(text="Time's up! Shutting down...")
+        label.config(text="Time's up! Shutting down...", fg="red")
         root.update()
         time.sleep(2)
         end_time = datetime.now()
@@ -47,13 +52,15 @@ def update_timer():
         shutdown_computer()
     elif remaining_time_work <= warning_time:
         label.config(
-            text=f"Warning: {format_time(remaining_time_work)} left! Save your work."
+            text=f"Warning: {format_time(remaining_time_work)} left! Save your work.",
+            fg="orange",
         )
         root.after(1000, update_timer)
     else:
         remaining_display = format_time(remaining_time_work)
         label.config(
-            text=f"Started at: {start_time_str}\nTime Remaining: {remaining_display}"
+            text=f"Started at: {start_time_str}\nTime Remaining: {remaining_display}",
+            fg="#00338D",
         )
         root.after(1000, update_timer)
 
@@ -62,7 +69,7 @@ def shutdown_computer():
     system_name = platform.system()
     if system_name == "Windows":
         os.system("shutdown /s /t 1")
-    elif system_name == "Linux" or system_name == "Darwin":
+    elif system_name == "Linux" or system_name == "Darwin":  # macOS is 'Darwin'
         os.system("shutdown -h now")
     else:
         label.config(text=f"Shutdown not supported for {system_name}.")
@@ -70,15 +77,34 @@ def shutdown_computer():
 
 log_event(f"Session Started: {start_time_str} on {start_date_str}")
 
+
 root = tk.Tk()
-root.title("Work Time")
+root.title("Work Timer")
 
 
-root.geometry("250x100")
+root.geometry("400x200")
+root.configure(bg="#F6F1EC")
 
-
-label = tk.Label(root, text="Time Remaining: ", font=("Helvetica", 12), justify=tk.LEFT)
+label = tk.Label(root, text="Time Remaining: ", font=("Helvetica", 16), fg="white")
 label.pack(expand=True)
+
+
+progress_var = tk.DoubleVar()
+progress_bar = ttk.Progressbar(
+    root, orient="horizontal", length=300, mode="determinate", variable=progress_var
+)
+progress_bar.pack(pady=10)
+
+exit_button = tk.Button(
+    root,
+    text="X",
+    command=root.quit,
+    bg="#00338D",
+    fg="white",
+    font=("Helvetica", 12),
+    relief="flat",
+)
+exit_button.pack(side="bottom", pady=10)
 
 
 update_timer()
