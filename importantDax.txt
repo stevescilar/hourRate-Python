@@ -1,1 +1,4 @@
 MonthName = FORMAT([MONTH], "MMMM")
+
+
+Net Billings = SUM(cra3b_receivable_summary_ea[Billings]) - SUM(cra3b_receivable_summary_ea[Tax on Bills])
